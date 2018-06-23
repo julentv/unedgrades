@@ -38,7 +38,7 @@ public class GradesScraper {
         defaultHeader.put("Upgrade-Insecure-Requests", "1");
     }
 
-    public Map<String, Float> getGrades(String user, String password) throws IOException {
+    public Map<String, Float> getGrades(String user, String password, int year, int semester) throws IOException {
         Connection.Response loggingResponse = insertLoggingData(user, password);
         Map<String, String> completeCookies = new HashMap<>(loggingResponse.cookies());
         Connection.Response campusResponse = accessToCampus(loggingResponse);
@@ -86,15 +86,14 @@ public class GradesScraper {
                 .data("ctl00_ContentPlaceHolderPrincipal_ScriptManager1_HiddenField", hiddenFieldValue)
                 .data("ctl00$ContentPlaceHolderPrincipal$btnAceptar", "Aceptar")
                 .data("ctl00$ContentPlaceHolderPrincipal$cmbCriterioEstudios", "01") //Grado
-                .data("ctl00$ContentPlaceHolderPrincipal$cmbCursoAcademico", "2018")
+                .data("ctl00$ContentPlaceHolderPrincipal$cmbCursoAcademico", String.valueOf(year))
                 .data("ctl00$ContentPlaceHolderPrincipal$cpeFiltroCalificaciones_ClientState", "false")
                 .data("ctl00$ContentPlaceHolderPrincipal$cpeInformacion_ClientState", "true")
-                .data("ctl00$ContentPlaceHolderPrincipal$rdbListConvocatoriaEEESyLDI", "1") //Junio
+                .data("ctl00$ContentPlaceHolderPrincipal$rdbListConvocatoriaEEESyLDI", String.valueOf(semester)) //Junio
                 .data("ctl00$ContentPlaceHolderPrincipal$ScriptManager1", "ctl00$ContentPlaceHolderPrincipal$updatePanel|ctl00$ContentPlaceHolderPrincipal$btnAceptar")
                 .execute();
 
         Document gradesResponseParsed = getGradesResponse.parse();
-//        LOGGER.info(gradesResponseParsed.outerHtml());
 
         return gradesPageParser.getGrades(gradesResponseParsed);
     }
