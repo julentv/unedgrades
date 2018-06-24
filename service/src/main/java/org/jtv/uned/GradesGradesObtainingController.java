@@ -9,11 +9,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-
 @RestController
 public class GradesGradesObtainingController {
     private static final Logger LOGGER = Logger.getLogger(GradesObtainingService.class);
+
+    @RequestMapping("/")
+    String index() {
+        return "pong";
+    }
 
     @RequestMapping("/grades")
     public Grades greeting(@RequestParam(value = "name") String name, @RequestParam(value = "password") String password) {

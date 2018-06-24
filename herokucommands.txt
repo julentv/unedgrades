@@ -1,0 +1,11 @@
+Push changes:
+    git push heroku master
+
+Scale the app
+    heroku ps:scale web=1
+
+Open url:
+    heroku open
+
+Logs:
+    heroku logs --tail
