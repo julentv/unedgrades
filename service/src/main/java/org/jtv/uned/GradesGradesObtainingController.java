@@ -14,7 +14,7 @@ public class GradesGradesObtainingController {
     private static final Logger LOGGER = Logger.getLogger(GradesObtainingService.class);
 
     @RequestMapping("/")
-    String index() {
+    public String index() {
         return "pong";
     }
 

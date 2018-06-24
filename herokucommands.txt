@@ -9,3 +9,6 @@ Open url:
 
 Logs:
     heroku logs --tail
+
+Run locally:
+    heroku local
