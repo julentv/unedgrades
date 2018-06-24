@@ -1,5 +1,6 @@
 Push changes:
     git push heroku master
+    git push -u origin master
 
 Scale the app
     heroku ps:scale web=1
