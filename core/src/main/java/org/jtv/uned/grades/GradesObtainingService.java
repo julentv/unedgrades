@@ -24,7 +24,7 @@ public class GradesObtainingService {
         try {
             grades.putAll(gradesScraper.getGrades(user, password, year, semester));
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("Error getting grades", e);
         }
         return new Grades(user, year, semester, grades);
     }
