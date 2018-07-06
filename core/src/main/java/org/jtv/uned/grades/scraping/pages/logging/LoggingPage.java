@@ -1,8 +1,9 @@
-package org.jtv.uned.grades.scraping.pages;
+package org.jtv.uned.grades.scraping.pages.logging;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jtv.uned.grades.scraping.pages.DefaultHeader;
 
 import java.io.IOException;
 import java.util.Map;

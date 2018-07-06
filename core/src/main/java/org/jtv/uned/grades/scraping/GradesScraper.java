@@ -1,10 +1,11 @@
 package org.jtv.uned.grades.scraping;
 
-import org.apache.log4j.Logger;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jtv.uned.grades.scraping.pages.DefaultHeader;
+import org.jtv.uned.grades.scraping.pages.logging.LoggingPage;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -14,11 +15,8 @@ import java.util.ListIterator;
 import java.util.Map;
 
 public class GradesScraper {
-    private static final Logger LOGGER = Logger.getLogger(GradesScraper.class);
-
-    final String USER_AGENT = "\"Mozilla/5.0 (Windows NT\" +\n" +
+    private final String USER_AGENT = "\"Mozilla/5.0 (Windows NT\" +\n" +
             "          \" 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.120 Safari/535.2\"";
-    private static final String LOGGING_URL = "https://sso.uned.es/sso/index.aspx?URL=https://login.uned.es/ssouned/login.jsp";
     private static final String PANNEL = "https://login.uned.es/sso/auth";
 
     private final HashMap<String, String> defaultHeader;
@@ -27,21 +25,12 @@ public class GradesScraper {
     public GradesScraper(GradesPageParser gradesPageParser) {
         this.gradesPageParser = gradesPageParser;
 
-        defaultHeader = new HashMap<>();
-        defaultHeader.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        defaultHeader.put("Accept-Encoding", "gzip, deflate, br");
-        defaultHeader.put("Accept-Language", "es-MX,es;q=0.8,en-US;q=0.5,en;q=0.3");
-        defaultHeader.put("Connection", "keep-alive");
-        defaultHeader.put("Content-Type", "application/x-www-form-urlencoded");
-        defaultHeader.put("Host", "sso.uned.es");
-        defaultHeader.put("Referer", "https://sso.uned.es/sso/index.aspx?URL=https://login.uned.es/ssouned/login.jsp");
-        defaultHeader.put("Upgrade-Insecure-Requests", "1");
+        defaultHeader = DefaultHeader.getHeader();
     }
 
     public Map<String, Float> getGrades(String user, String password, int year, int semester) throws IOException {
-        Connection.Response loggingResponse = insertLoggingData(user, password);
-        Map<String, String> completeCookies = new HashMap<>(loggingResponse.cookies());
-        Connection.Response campusResponse = accessToCampus(loggingResponse);
+        Map<String, String> completeCookies = new HashMap<>(new LoggingPage(user, password).getLoggedCookies());
+        Connection.Response campusResponse = accessToCampus(completeCookies);
         completeCookies.putAll(campusResponse.cookies());
 
         Map<String, String> gradeSearchHeaders = new HashMap<>(defaultHeader);
@@ -112,29 +101,7 @@ public class GradesScraper {
         return hiddenFieldValue;
     }
 
-    private Connection.Response insertLoggingData(String user, String password) throws IOException {
-        Connection.Response init = Jsoup.connect(LOGGING_URL).userAgent(USER_AGENT).execute();
-
-        Document initParsed = init.parse();
-
-        return Jsoup.connect(LOGGING_URL)
-                .followRedirects(true)
-                .method(Connection.Method.POST)
-                .headers(defaultHeader)
-                .userAgent(USER_AGENT)
-                .cookies(init.cookies())
-                .data("ctl00$ContentPlaceHolder1$ssousername", user)
-                .data("ctl00$ContentPlaceHolder1$password", password)
-                .data("__EVENTVALIDATION", initParsed.getElementById("__EVENTVALIDATION").val())
-                .data("__VIEWSTATE", initParsed.getElementById("__VIEWSTATE").val())
-                .data("__VIEWSTATEGENERATOR", initParsed.getElementById("__VIEWSTATEGENERATOR").val())
-                .data("ctl00$ContentPlaceHolder1$Button1", "Enviar")
-                .data("ctl00$ContentPlaceHolder1$oraTrace", initParsed.getElementById("ContentPlaceHolder1_oraTrace").val())
-                .data("ctl00$ContentPlaceHolder1$urlrebote", "https://login.uned.es/ssouned/login.jsp")
-                .execute();
-    }
-
-    private Connection.Response accessToCampus(final Connection.Response response) throws IOException {
+    private Connection.Response accessToCampus(final Map<String, String> cookies) throws IOException {
 
         Map<String, String> headerIntermediate = new HashMap<>(defaultHeader);
         headerIntermediate.remove("Content-Type");
@@ -144,18 +111,18 @@ public class GradesScraper {
                 .method(Connection.Method.GET)
                 .userAgent(USER_AGENT)
                 .headers(headerIntermediate)
-                .cookies(response.cookies())
+                .cookies(cookies)
                 .execute();
         Document intermediateParse = intermediateResponse.parse();
 
         Map<String, String> headerFinal = new HashMap<>(defaultHeader);
         headerFinal.put("Cache-Control", "max-age=0");
-        Connection.Response finalResponse = Jsoup.connect(PANNEL)
+        return Jsoup.connect(PANNEL)
                 .followRedirects(true)
                 .method(Connection.Method.POST)
                 .userAgent(USER_AGENT)
                 .headers(headerFinal)
-                .cookies(response.cookies())
+                .cookies(cookies)
                 .data("oratrace", intermediateParse.getElementById("oratrace").val())
                 .data("password", intermediateParse.getElementById("password").val())
                 .data("site2pstoretoken", intermediateParse.getElementsByAttributeValue("NAME", "site2pstoretoken").val())
@@ -163,6 +130,5 @@ public class GradesScraper {
                 .data("ssousername", intermediateParse.getElementById("ssousername").val())
                 .data("v", intermediateParse.getElementsByAttributeValue("NAME", "v").val())
                 .execute();
-        return finalResponse;
     }
 }
