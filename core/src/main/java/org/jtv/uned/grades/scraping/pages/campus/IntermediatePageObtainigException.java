@@ -1,4 +1,7 @@
 package org.jtv.uned.grades.scraping.pages.campus;
 
-public class IntermediatePageObtainigException {
+class IntermediatePageObtainigException extends RuntimeException {
+    IntermediatePageObtainigException(final Throwable cause) {
+        super(cause);
+    }
 }

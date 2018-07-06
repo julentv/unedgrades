@@ -1,4 +1,7 @@
 package org.jtv.uned.grades.scraping.pages.campus;
 
-public class CampusPageObtainingException {
+class CampusPageObtainingException extends RuntimeException {
+    CampusPageObtainingException(final Throwable cause) {
+        super(cause);
+    }
 }

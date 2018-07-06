@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jtv.uned.grades.scraping.pages.DefaultHeader;
+import org.jtv.uned.grades.scraping.pages.campus.CampusPage;
 import org.jtv.uned.grades.scraping.pages.logging.LoggingPage;
 
 import java.io.IOException;
@@ -24,14 +25,12 @@ public class GradesScraper {
 
     public GradesScraper(GradesPageParser gradesPageParser) {
         this.gradesPageParser = gradesPageParser;
-
-        defaultHeader = DefaultHeader.getHeader();
+        this.defaultHeader = DefaultHeader.getHeader();
     }
 
     public Map<String, Float> getGrades(String user, String password, int year, int semester) throws IOException {
         Map<String, String> completeCookies = new HashMap<>(new LoggingPage(user, password).getLoggedCookies());
-        Connection.Response campusResponse = accessToCampus(completeCookies);
-        completeCookies.putAll(campusResponse.cookies());
+        completeCookies.putAll(new CampusPage().getCookies(completeCookies));
 
         Map<String, String> gradeSearchHeaders = new HashMap<>(defaultHeader);
         gradeSearchHeaders.put("Cache-Control", "max-age=0");
@@ -99,36 +98,5 @@ public class GradesScraper {
             }
         }
         return hiddenFieldValue;
-    }
-
-    private Connection.Response accessToCampus(final Map<String, String> cookies) throws IOException {
-
-        Map<String, String> headerIntermediate = new HashMap<>(defaultHeader);
-        headerIntermediate.remove("Content-Type");
-
-        Connection.Response intermediateResponse = Jsoup.connect("https://login.uned.es/ssouned/login.jsp")
-                .followRedirects(true)
-                .method(Connection.Method.GET)
-                .userAgent(USER_AGENT)
-                .headers(headerIntermediate)
-                .cookies(cookies)
-                .execute();
-        Document intermediateParse = intermediateResponse.parse();
-
-        Map<String, String> headerFinal = new HashMap<>(defaultHeader);
-        headerFinal.put("Cache-Control", "max-age=0");
-        return Jsoup.connect(PANNEL)
-                .followRedirects(true)
-                .method(Connection.Method.POST)
-                .userAgent(USER_AGENT)
-                .headers(headerFinal)
-                .cookies(cookies)
-                .data("oratrace", intermediateParse.getElementById("oratrace").val())
-                .data("password", intermediateParse.getElementById("password").val())
-                .data("site2pstoretoken", intermediateParse.getElementsByAttributeValue("NAME", "site2pstoretoken").val())
-                .data("ssocert", intermediateParse.getElementById("ssocert").val())
-                .data("ssousername", intermediateParse.getElementById("ssousername").val())
-                .data("v", intermediateParse.getElementsByAttributeValue("NAME", "v").val())
-                .execute();
     }
 }
