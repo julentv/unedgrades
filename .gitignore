@@ -5,3 +5,4 @@ log/
 logs/
 target/
 store/
+core/src/test/java/org/jtv/uned/grades/scraping/LocalOnlyTest.java
