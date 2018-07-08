@@ -2,5 +2,5 @@
 Service to obtain the grades of degree in UNED
 
 ```sh
-/grades?name=<username>&password=<password>
+/grades?name=<username>&password=<password>&year=<year>&semester=<semester>
 ```
