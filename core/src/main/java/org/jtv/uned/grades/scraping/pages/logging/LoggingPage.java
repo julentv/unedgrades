@@ -15,19 +15,16 @@ public class LoggingPage {
 
     private final String user;
     private final String password;
-    private Connection.Response logInResponse;
+    private final Map<String, String> cookies;
 
     public LoggingPage(final String user, final String password) {
         this.user = user;
         this.password = password;
+        this.cookies = logIn().cookies();
     }
 
     public Map<String, String> getLoggedCookies() {
-        if (logInResponse == null) {
-            logInResponse = logIn();
-        }
-
-        return logInResponse.cookies();
+        return cookies;
     }
 
     private Connection.Response logIn() {

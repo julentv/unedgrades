@@ -15,10 +15,16 @@ public class CampusPage {
     private static final String INTERMEDIATE_PAGE_URL = "https://login.uned.es/ssouned/login.jsp";
     private static final String PANNEL_URL = "https://login.uned.es/sso/auth";
 
-    public Map<String, String> getCookies(final Map<String, String> previousCookies) {
+    private final Map<String, String> cookies;
+
+    public CampusPage(final Map<String, String> previousCookies) {
         Document intermediatePageParsed = getIntermediatePageParsed(previousCookies);
         Connection.Response campusPageResponse = getCampusPageResponse(previousCookies, intermediatePageParsed);
-        return campusPageResponse.cookies();
+        cookies = campusPageResponse.cookies();
+    }
+
+    public Map<String, String> getCookies() {
+        return cookies;
     }
 
     private Connection.Response getCampusPageResponse(final Map<String, String> cookies, Document intermediateParse) {

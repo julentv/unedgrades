@@ -15,8 +15,6 @@ import java.util.Map;
 public class GradesScraper {
     private final String USER_AGENT = "\"Mozilla/5.0 (Windows NT\" +\n" +
             "          \" 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.120 Safari/535.2\"";
-    private static final String PANNEL = "https://login.uned.es/sso/auth";
-
     private final HashMap<String, String> defaultHeader;
     private final GradesPageParser gradesPageParser;
 
@@ -27,7 +25,7 @@ public class GradesScraper {
 
     public Map<String, Float> getGrades(String user, String password, int year, int semester) throws IOException {
         Map<String, String> completeCookies = new HashMap<>(new LoggingPage(user, password).getLoggedCookies());
-        completeCookies.putAll(new CampusPage().getCookies(completeCookies));
+        completeCookies.putAll(new CampusPage(completeCookies).getCookies());
 
         GradesSearcherPage gradesSearcherPage = new GradesSearcherPage(completeCookies);
 
