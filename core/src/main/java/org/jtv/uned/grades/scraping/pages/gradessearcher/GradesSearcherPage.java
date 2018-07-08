@@ -45,11 +45,11 @@ public class GradesSearcherPage {
         }
     }
 
-    public Document getParsedResponse() throws IOException {
+    public Document getParsedResponse() {
         return this.parsedReponse;
     }
 
-    public String getHiddenField() throws UnsupportedEncodingException {
+    public String getHiddenField() {
 
         try {
 
