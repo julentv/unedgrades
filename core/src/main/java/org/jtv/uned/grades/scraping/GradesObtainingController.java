@@ -18,7 +18,7 @@ public class GradesObtainingController {
 
     public Map<String, Float> getGrades(String user, String password, int year, int semester) throws IOException {
         Map<String, String> completeCookies = new HashMap<>(new LoggingPage(user, password).getLoggedCookies());
-        completeCookies.putAll(new CampusPage(completeCookies).getCookies());
+//        completeCookies.putAll(new CampusPage(completeCookies).getCookies());
 
         GradesSearcherPage gradesSearcherPage = new GradesSearcherPage(completeCookies);
         completeCookies.putAll(gradesSearcherPage.getCookies());
