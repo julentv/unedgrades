@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GradesScraper {
+public class GradesObtainingController {
     private final GradesPageParser gradesPageParser;
 
-    public GradesScraper(GradesPageParser gradesPageParser) {
+    public GradesObtainingController(GradesPageParser gradesPageParser) {
         this.gradesPageParser = gradesPageParser;
     }
 
@@ -21,7 +21,6 @@ public class GradesScraper {
         completeCookies.putAll(new CampusPage(completeCookies).getCookies());
 
         GradesSearcherPage gradesSearcherPage = new GradesSearcherPage(completeCookies);
-
         completeCookies.putAll(gradesSearcherPage.getCookies());
 
         return new GradesPage(gradesPageParser, completeCookies, gradesSearcherPage, year, semester)

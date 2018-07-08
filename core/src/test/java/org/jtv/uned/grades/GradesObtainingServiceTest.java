@@ -1,6 +1,6 @@
 package org.jtv.uned.grades;
 
-import org.jtv.uned.grades.scraping.GradesScraper;
+import org.jtv.uned.grades.scraping.GradesObtainingController;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class GradesObtainingServiceTest {
     private static final String USER = "user";
     private static final String PASSWORD = "pass";
     @Mock
-    private GradesScraper gradesScraper;
+    private GradesObtainingController gradesObtainingController;
 
     @Before
     public void setUp() throws Exception {
@@ -29,8 +29,8 @@ public class GradesObtainingServiceTest {
     public void whenObtainingGrades_basicDataIsObtained() throws IOException {
         HashMap<String, Float> gradesBySubjectName = new HashMap<>();
         gradesBySubjectName.put("subject1", 6f);
-        when(gradesScraper.getGrades(eq(USER), eq(PASSWORD), eq(2018), eq(1))).thenReturn(gradesBySubjectName);
-        GradesObtainingService gradesObtainingService = new GradesObtainingService(USER, PASSWORD, gradesScraper);
+        when(gradesObtainingController.getGrades(eq(USER), eq(PASSWORD), eq(2018), eq(1))).thenReturn(gradesBySubjectName);
+        GradesObtainingService gradesObtainingService = new GradesObtainingService(USER, PASSWORD, gradesObtainingController);
         Grades grades = gradesObtainingService.obtainGrades(2018, 1);
         Assert.assertEquals(USER, grades.getUser());
         Assert.assertEquals(2018, grades.getYear());

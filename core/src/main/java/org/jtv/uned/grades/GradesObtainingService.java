@@ -1,7 +1,7 @@
 package org.jtv.uned.grades;
 
 import org.apache.log4j.Logger;
-import org.jtv.uned.grades.scraping.GradesScraper;
+import org.jtv.uned.grades.scraping.GradesObtainingController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,18 +11,18 @@ public class GradesObtainingService {
 
     private final String user;
     private final String password;
-    private final GradesScraper gradesScraper;
+    private final GradesObtainingController gradesObtainingController;
 
-    public GradesObtainingService(String user, String password, GradesScraper gradesScraper) {
+    public GradesObtainingService(String user, String password, GradesObtainingController gradesObtainingController) {
         this.user = user;
         this.password = password;
-        this.gradesScraper = gradesScraper;
+        this.gradesObtainingController = gradesObtainingController;
     }
 
     public Grades obtainGrades(int year, int semester) {
         Map<String, Float> grades = new HashMap<>();
         try {
-            grades.putAll(gradesScraper.getGrades(user, password, year, semester));
+            grades.putAll(gradesObtainingController.getGrades(user, password, year, semester));
         } catch (Exception e) {
             LOGGER.error("Error getting grades", e);
         }

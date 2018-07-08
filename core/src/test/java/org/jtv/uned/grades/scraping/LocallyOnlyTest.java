@@ -7,11 +7,11 @@ import org.junit.Test;
 import java.util.Map;
 
 @Ignore
-public class LocalOnlyTest {
+public class LocallyOnlyTest {
     @Test
     public void getGrades() throws Exception {
-        GradesScraper gradesScraper = new GradesScraper(new GradesPageParser());
-        Map<String, Float> grades = gradesScraper.getGrades("jtelleria6", "julen300591", 2018, 1);
+        GradesObtainingController gradesObtainingController = new GradesObtainingController(new GradesPageParser());
+        Map<String, Float> grades = gradesObtainingController.getGrades("jtelleria6", "julen300591", 2018, 1);
 
         Assert.assertEquals(6.1f, grades.get("Psicofarmacología"), 0);
         Assert.assertEquals(6f, grades.get("Psicología del Desarrollo II"), 0);
