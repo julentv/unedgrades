@@ -50,7 +50,7 @@ public class LoggingPage {
                     .data("ctl00$ContentPlaceHolder1$urlrebote", "https://login.uned.es/ssouned/login.jsp")
                     .execute();
         } catch (IOException e) {
-            throw new LoggingPageParsingError(e);
+            throw new LoggingPageParsingException(e);
         }
     }
 
@@ -58,7 +58,7 @@ public class LoggingPage {
         try {
             return Jsoup.connect(LOGGING_URL).userAgent(USER_AGENT).execute();
         } catch (IOException e) {
-            throw new LoggingPageObtainingError(e);
+            throw new LoggingPageObtainingException(e);
         }
     }
 }

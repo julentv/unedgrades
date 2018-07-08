@@ -3,16 +3,13 @@ package org.jtv.uned.grades.scraping;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jtv.uned.grades.scraping.pages.DefaultHeader;
 import org.jtv.uned.grades.scraping.pages.campus.CampusPage;
+import org.jtv.uned.grades.scraping.pages.gradessearcher.GradesSearcherPage;
 import org.jtv.uned.grades.scraping.pages.logging.LoggingPage;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.HashMap;
-import java.util.ListIterator;
 import java.util.Map;
 
 public class GradesScraper {
@@ -32,24 +29,10 @@ public class GradesScraper {
         Map<String, String> completeCookies = new HashMap<>(new LoggingPage(user, password).getLoggedCookies());
         completeCookies.putAll(new CampusPage().getCookies(completeCookies));
 
-        Map<String, String> gradeSearchHeaders = new HashMap<>(defaultHeader);
-        gradeSearchHeaders.put("Cache-Control", "max-age=0");
-        gradeSearchHeaders.put("Host", "app.uned.es");
-        gradeSearchHeaders.put("Referer", "http://portal.uned.es/portal/page?_pageid=93,153054&_dad=portal&_schema=PORTAL");
-        Connection.Response gradeSearcherResponse = Jsoup.connect("https://app.uned.es/gesmatri/Presentacion/modCalificaciones/listadoCalificaciones.aspx")
-                .followRedirects(true)
-                .method(Connection.Method.GET)
-                .userAgent(USER_AGENT)
-                .headers(gradeSearchHeaders)
-                .cookies(completeCookies)
-                .execute();
+        GradesSearcherPage gradesSearcherPage = new GradesSearcherPage(completeCookies);
 
-        Document searcherDocument = gradeSearcherResponse.parse();
-
-        String hiddenFieldValue = getHiddenField(searcherDocument);
-
-        completeCookies.putAll(gradeSearcherResponse.cookies());
-
+        Document searcherDocument = gradesSearcherPage.getParsedResponse();
+        completeCookies.putAll(gradesSearcherPage.getCookies());
 
         Map<String, String> getGradesRHeaders = new HashMap<>(defaultHeader);
         getGradesRHeaders.put("Accept", "*/*");
@@ -71,7 +54,7 @@ public class GradesScraper {
                 .data("__VIEWSTATE", searcherDocument.getElementById("__VIEWSTATE").val())
                 .data("__VIEWSTATEGENERATOR", searcherDocument.getElementById("__VIEWSTATEGENERATOR").val())
                 .data("__ASYNCPOST", "true")
-                .data("ctl00_ContentPlaceHolderPrincipal_ScriptManager1_HiddenField", hiddenFieldValue)
+                .data("ctl00_ContentPlaceHolderPrincipal_ScriptManager1_HiddenField", gradesSearcherPage.getHiddenField())
                 .data("ctl00$ContentPlaceHolderPrincipal$btnAceptar", "Aceptar")
                 .data("ctl00$ContentPlaceHolderPrincipal$cmbCriterioEstudios", "01") //Grado
                 .data("ctl00$ContentPlaceHolderPrincipal$cmbCursoAcademico", String.valueOf(year))
@@ -84,19 +67,5 @@ public class GradesScraper {
         Document gradesResponseParsed = getGradesResponse.parse();
 
         return gradesPageParser.getGrades(gradesResponseParsed);
-    }
-
-    private String getHiddenField(final Document searcherDocument) throws UnsupportedEncodingException {
-        ListIterator<Element> scriptIterator = searcherDocument.getElementsByTag("script").listIterator();
-        String hiddenFieldValue = "";
-        while (scriptIterator.hasNext()) {
-            Element element = scriptIterator.next();
-            if (element.attr("src").contains("ctl00_ContentPlaceHolderPrincipal_ScriptManager1_HiddenField")) {
-                String src = element.attr("src");
-                int start = src.indexOf("_TSM_CombinedScripts_=");
-                hiddenFieldValue = URLDecoder.decode(src.substring(start + "_TSM_CombinedScripts_=".length()), "UTF-8");
-            }
-        }
-        return hiddenFieldValue;
     }
 }
